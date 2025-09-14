@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.vite
+.storybook-out
+.DS_Store
+.idea
+.env*
