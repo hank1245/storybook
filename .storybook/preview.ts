@@ -49,17 +49,23 @@ const setBackgroundThemeHint = (bg?: string) => {
 
   if (theme) {
     root.setAttribute("data-sb-theme", theme);
-    if (theme === "light") {
-      root.style.setProperty("--typing-color", "#000");
-      root.style.setProperty("--glitch-color", "#000");
-    } else {
-      root.style.removeProperty("--typing-color");
-      root.style.removeProperty("--glitch-color");
-    }
+    // Choose high-contrast colors against the selected background
+    const contrast = theme === "light" ? "#000" : "#fff";
+    root.style.setProperty("--typing-color", contrast);
+    root.style.setProperty("--glitch-color", contrast);
   } else {
     root.removeAttribute("data-sb-theme");
     root.style.removeProperty("--typing-color");
     root.style.removeProperty("--glitch-color");
+  }
+
+  // Pass selected background color down so components can match band color
+  if (bg) {
+    root.style.setProperty("--sb-background", bg);
+    root.style.setProperty("--glitch-band-bg", bg);
+  } else {
+    root.style.removeProperty("--sb-background");
+    root.style.removeProperty("--glitch-band-bg");
   }
 };
 

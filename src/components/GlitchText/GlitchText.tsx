@@ -87,7 +87,8 @@ const GlitchWrapper = styled.div<{
     position: absolute;
     top: 0;
     color: inherit;
-    background: #000; /* keep hard black for glitch bands */
+    /* Match visible bands to the Storybook-selected background (or transparent) */
+    background: var(--glitch-band-bg, transparent);
     overflow: hidden;
   }
 
