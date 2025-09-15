@@ -7,7 +7,7 @@ const meta: Meta<typeof BoxLoading> = {
   args: {
     background: "#f9f9f9",
     boxSize: 50,
-    color: "#1a6844",
+    color: "#6136ca",
     duration: 0.5,
     text: "Loading..",
     textColor: "#6136ca",

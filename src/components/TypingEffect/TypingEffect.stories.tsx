@@ -5,7 +5,7 @@ const meta: Meta<typeof TypingEffect> = {
   title: "Components/TypingEffect",
   component: TypingEffect,
   args: {
-    text: "This is a typing demo.",
+    text: "You can type anything you want.",
     speed: 12,
     center: true,
   },
