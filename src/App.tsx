@@ -1,4 +1,5 @@
 import TypingEffect from "./components/TypingEffect/TypingEffect";
+import GlitchText from "./components/GlitchText/GlitchText";
 
 export function App() {
   return (
@@ -10,6 +11,9 @@ export function App() {
             speed={14}
             center={false}
           />
+        </div>
+        <div style={{ marginTop: 48 }}>
+          <GlitchText text="GLITCH" fontSize={72} width={320} />
         </div>
       </main>
     </div>
