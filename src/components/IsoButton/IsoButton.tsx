@@ -38,28 +38,28 @@ const Button = styled.a<{ $bg: string }>`
   perspective: 100px;
   cursor: pointer;
   text-decoration: none;
-  
-  
 
   &::before,
   &::after,
   div {
-    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     transition: all 0.35s ease-in-out;
+    transform: translate(0, 0) translateZ(0); /* 기본 transform 값 지정 */
   }
 
   &::before {
     background-color: ${layerBottom};
+    content: "";
   }
 
   &::after {
     background-color: ${layerMiddle};
     z-index: 0;
+    content: "";
   }
 
   &:hover {
@@ -68,6 +68,7 @@ const Button = styled.a<{ $bg: string }>`
     div {
       transform: translate(-30px, -30px) translateZ(10px);
     }
+
     &::after {
       transform: translate(-15px, -15px) translateZ(5px);
     }
@@ -78,7 +79,7 @@ const Button = styled.a<{ $bg: string }>`
     z-index: 1;
     color: #fff;
     text-align: center;
-    
+
     svg {
       font-size: ${buttonSize / 2}px;
       position: absolute;
@@ -121,8 +122,8 @@ export function IsoButtonGroup() {
     <Wrapper>
       <IsoButton
         type="linkedin"
-        href="https://www.facebook.com/einstein1997"
-        title="linkedin"
+        href="https://linkedin.com/in/huiung-kim-3b1330244"
+        title="LinkedIn"
       />
       <IsoButton
         type="twitter"
@@ -133,7 +134,7 @@ export function IsoButtonGroup() {
       <IsoButton
         type="instagram"
         href="https://www.instagram.com/huiung1/"
-        title="instagram"
+        title="Instagram"
       />
       <IsoButton
         type="github"
