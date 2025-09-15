@@ -1,5 +1,4 @@
-import { CSSProperties } from "react";
-import styles from "./TypingEffect.module.css";
+import styled, { css, keyframes } from "styled-components";
 
 export interface TypingEffectProps {
   /** 표시할 텍스트 */
@@ -25,34 +24,57 @@ export function TypingEffect({
   const chars = Math.max(0, text?.length ?? 0);
   // 총 재생 시간(초) = 글자수 / 초당 글자수
   const durationSec = Math.max(0.1, chars / Math.max(1e-6, speed));
-  const blinkSec = 0.5; // 원본 CSS 그대로 유지
-
-  const wrapperClass = [center ? styles.wrapper : undefined, className]
-    .filter(Boolean)
-    .join(" ");
-
-  const typingStyle: CSSProperties = {
-    // width를 최종 상태로 두고 keyframes에서 from { width: 0 }로 시작
-    width: `${chars}ch`,
-    // steps(글자수)로 글자 단위로 진행, blink는 무한 반복
-    animation: `typing ${durationSec}s steps(${Math.max(
-      chars,
-      1
-    )}), blink ${blinkSec}s step-end infinite alternate`,
-  };
 
   return (
-    <div className={wrapperClass}>
-      <div
+    <Wrapper $center={center} className={className}>
+      <Typing
         key={`${text}-${speed}`}
-        className={styles.typing}
-        style={typingStyle}
         aria-label={text}
+        $sizeCh={chars}
+        $durationSec={durationSec}
       >
         {text}
-      </div>
-    </div>
+      </Typing>
+    </Wrapper>
   );
 }
 
 export default TypingEffect;
+
+// styled-components
+const typingKF = keyframes`
+  from { width: 0 }
+`;
+
+const blinkKF = keyframes`
+  50% { border-color: transparent }
+`;
+
+const Wrapper = styled.div<{ $center: boolean }>`
+  ${(p) =>
+    p.$center &&
+    css`
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    `}
+`;
+
+const Typing = styled.div<{ $sizeCh: number; $durationSec: number }>`
+  color: var(--typing-color, inherit);
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid;
+  border-right-color: currentColor;
+  font-family: monospace;
+  font-size: 2em;
+  width: ${(p) => p.$sizeCh}ch;
+  animation: ${typingKF} ${(p) => p.$durationSec}s
+      steps(${(p) => Math.max(p.$sizeCh, 1)}),
+    ${blinkKF} 0.5s step-end infinite alternate;
+
+  @media (prefers-color-scheme: light) {
+    color: #000; /* 시스템 라이트 모드 기본값 */
+  }
+`;
