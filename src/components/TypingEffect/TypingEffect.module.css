@@ -1,0 +1,23 @@
+.wrapper {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.typing {
+  color: var(--typing-color, inherit);
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid;
+  border-right-color: currentColor;
+  font-family: monospace;
+  font-size: 2em;
+}
+
+/* Light mode: make text/cursor black */
+@media (prefers-color-scheme: light) {
+  .typing {
+    color: #000; /* fallback when system is light */
+  }
+}
