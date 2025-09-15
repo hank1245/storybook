@@ -51,12 +51,16 @@ const setBackgroundThemeHint = (bg?: string) => {
     root.setAttribute("data-sb-theme", theme);
     // Choose high-contrast colors against the selected background
     const contrast = theme === "light" ? "#000" : "#fff";
+    root.style.setProperty("--fg-contrast", contrast);
     root.style.setProperty("--typing-color", contrast);
     root.style.setProperty("--glitch-color", contrast);
+    root.style.setProperty("--scramble-color", contrast);
   } else {
     root.removeAttribute("data-sb-theme");
+    root.style.removeProperty("--fg-contrast");
     root.style.removeProperty("--typing-color");
     root.style.removeProperty("--glitch-color");
+    root.style.removeProperty("--scramble-color");
   }
 
   // Pass selected background color down so components can match band color
@@ -90,7 +94,16 @@ const preview: Preview = {
   decorators: [
     (Story: any, context: any) => {
       try {
-        setBackgroundThemeHint(context.globals?.backgrounds?.value);
+        const globalsBg = context.globals?.backgrounds?.value as string | undefined;
+        const p = context.parameters?.backgrounds as
+          | { default?: string; values?: Array<{ name: string; value: string }> }
+          | undefined;
+        let paramDefault: string | undefined;
+        if (p?.default && Array.isArray(p.values)) {
+          const found = p.values.find((v) => v.name === p.default);
+          paramDefault = found?.value;
+        }
+        setBackgroundThemeHint(globalsBg ?? paramDefault);
       } catch {}
       return Story();
     },

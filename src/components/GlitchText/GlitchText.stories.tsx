@@ -23,13 +23,6 @@ type Story = StoryObj<typeof GlitchText>;
 
 export const Default: Story = {};
 
-export const Compact: Story = {
-  args: {
-    fontSize: '48px',
-    width: '240px',
-  },
-};
-
 export const Fast: Story = {
   args: {
     speed1: 1.2,
@@ -42,4 +35,3 @@ export const CustomColor: Story = {
     color: '#ff00aa',
   },
 };
-

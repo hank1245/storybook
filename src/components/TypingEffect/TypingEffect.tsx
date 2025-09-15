@@ -62,7 +62,14 @@ const Wrapper = styled.div<{ $center: boolean }>`
 `;
 
 const Typing = styled.div<{ $sizeCh: number; $durationSec: number }>`
-  color: var(--typing-color, inherit);
+  /* Default to dark-mode friendly (white) */
+  color: #fff;
+  :root[data-sb-theme='light'] & {
+    color: #000;
+  }
+  :root[data-sb-theme='dark'] & {
+    color: #fff;
+  }
   white-space: nowrap;
   overflow: hidden;
   border-right: 3px solid;
