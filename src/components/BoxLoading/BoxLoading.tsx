@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import styled, { keyframes } from "styled-components";
 
 export type BoxLoadingProps = {
@@ -11,6 +11,8 @@ export type BoxLoadingProps = {
   fontSize?: string | number;
   fullScreen?: boolean;
   className?: string;
+  dotSteps?: number; // how many dots to cycle (e.g., 3 => ., .., ...)
+  dotIntervalMs?: number; // interval between dot updates
 };
 
 const animate = keyframes`
@@ -97,19 +99,37 @@ const Text = styled.div<{ $color: string; $fontSize: string }>`
 export const BoxLoading: FC<BoxLoadingProps> = ({
   background = "#f9f9f9",
   boxSize = 50,
-  color = "#1a6844",
+  color = "#6136ca",
   duration = 0.5,
   text = "Loading..",
-  textColor = "#1a6844",
+  textColor = "#6136ca",
   fontSize = "18px",
   fullScreen = true,
   className,
+  dotSteps = 3,
+  dotIntervalMs = 400,
 }) => {
   const fontSizeStr = typeof fontSize === "number" ? `${fontSize}px` : fontSize;
+  const [dotCount, setDotCount] = useState(1);
+
+  useEffect(() => {
+    const steps = Math.max(1, Math.floor(dotSteps));
+    const timer = window.setInterval(() => {
+      setDotCount((c) => (c % steps) + 1);
+    }, Math.max(100, dotIntervalMs));
+    return () => window.clearInterval(timer);
+  }, [dotSteps, dotIntervalMs]);
+
+  const displayText = useMemo(() => {
+    const base = (text ?? "").replace(/[.]+$/, "");
+    return `${base}${".".repeat(dotCount)}`;
+  }, [text, dotCount]);
   return (
     <Wrapper $bg={background} $full={fullScreen} className={className}>
       <Box $size={boxSize} $color={color} $duration={duration} />
-      <Text $color={textColor} $fontSize={fontSizeStr}>{text}</Text>
+      <Text $color={textColor} $fontSize={fontSizeStr}>
+        {displayText}
+      </Text>
     </Wrapper>
   );
 };
