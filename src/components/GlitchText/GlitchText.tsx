@@ -3,17 +3,16 @@ import styled, { keyframes } from "styled-components";
 
 export interface GlitchTextProps {
   text: string;
-  fontSize?: string | number; // e.g., '100px'
-  width?: string | number; // e.g., '400px'
-  steps?: number; // number of keyframe steps
-  maxClip?: number; // max px for clip rect top/bottom
-  speed1?: number; // seconds for :after animation
-  speed2?: number; // seconds for :before animation
-  color?: string; // text color
+  fontSize?: string | number;
+  width?: string | number;
+  steps?: number;
+  maxClip?: number;
+  speed1?: number;
+  speed2?: number;
+  color?: string;
   className?: string;
 }
 
-// Utility to normalize numeric or string CSS values
 const toCssSize = (v: string | number | undefined, fallback: string): string =>
   v == null ? fallback : typeof v === "number" ? `${v}px` : v;
 
@@ -78,7 +77,6 @@ const GlitchWrapper = styled.div<{
   margin: 0 auto;
   font-family: "Varela", ui-sans-serif, system-ui, -apple-system, Segoe UI,
     Roboto, Ubuntu, Cantarell, "Noto Sans", Arial, sans-serif;
-  /* Default to dark-mode friendly (white) */
   color: ${({ $color }) => $color ?? '#fff'};
   :root[data-sb-theme='light'] & {
     color: ${({ $color }) => $color ?? '#000'};
@@ -95,7 +93,6 @@ const GlitchWrapper = styled.div<{
     position: absolute;
     top: 0;
     color: inherit;
-    /* Match visible bands to the Storybook-selected background (or transparent) */
     background: var(--glitch-band-bg, transparent);
     overflow: hidden;
   }
