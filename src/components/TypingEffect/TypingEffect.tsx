@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import styled, { css, keyframes } from "styled-components";
 
 export interface TypingEffectProps {
@@ -21,16 +22,20 @@ export function TypingEffect({
   center = true,
   className,
 }: TypingEffectProps) {
-  const chars = Math.max(0, text?.length ?? 0);
-  // 총 재생 시간(초) = 글자수 / 초당 글자수
-  const durationSec = Math.max(0.1, chars / Math.max(1e-6, speed));
+  const charCount = Math.max(0, text.length);
+  const sanitizedSpeed = Math.max(1e-6, speed);
+  const durationSec = Math.max(0.1, charCount / sanitizedSpeed);
+  const animationKey = useMemo(
+    () => `${text}-${sanitizedSpeed}`,
+    [text, sanitizedSpeed],
+  );
 
   return (
     <Wrapper $center={center} className={className}>
       <Typing
-        key={`${text}-${speed}`}
+        key={animationKey}
         aria-label={text}
-        $sizeCh={chars}
+        $sizeCh={charCount}
         $durationSec={durationSec}
       >
         {text}

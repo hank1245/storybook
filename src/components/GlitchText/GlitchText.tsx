@@ -39,11 +39,20 @@ export function GlitchText({
   color,
   className,
 }: GlitchTextProps) {
-  const noise1 = useMemo(() => createNoise(steps, maxClip), [steps, maxClip]);
-  const noise2 = useMemo(() => createNoise(steps, maxClip), [steps, maxClip]);
+  const safeSteps = Math.max(1, Math.floor(steps));
+  const safeMaxClip = Math.max(0, Math.floor(maxClip));
+  const [noise1, noise2] = useMemo(
+    () => [
+      createNoise(safeSteps, safeMaxClip),
+      createNoise(safeSteps, safeMaxClip),
+    ],
+    [safeSteps, safeMaxClip],
+  );
 
-  const size = toCssSize(fontSize, "100px");
-  const w = toCssSize(width, "400px");
+  const size = useMemo(() => toCssSize(fontSize, "100px"), [fontSize]);
+  const w = useMemo(() => toCssSize(width, "400px"), [width]);
+  const safeSpeed1 = Math.max(0, speed1);
+  const safeSpeed2 = Math.max(0, speed2);
 
   return (
     <GlitchWrapper
@@ -53,8 +62,8 @@ export function GlitchText({
       $width={w}
       $noise1={noise1}
       $noise2={noise2}
-      $speed1={speed1}
-      $speed2={speed2}
+      $speed1={safeSpeed1}
+      $speed2={safeSpeed2}
       $color={color}
     >
       {text}

@@ -110,15 +110,18 @@ export const BoxLoading: FC<BoxLoadingProps> = ({
   dotIntervalMs = 400,
 }) => {
   const fontSizeStr = typeof fontSize === "number" ? `${fontSize}px` : fontSize;
+  const safeDuration = Math.max(0.05, duration);
+  const safeBoxSize = Math.max(1, boxSize);
+  const safeDotSteps = Math.max(1, Math.floor(dotSteps));
+  const safeDotInterval = Math.max(100, Math.floor(dotIntervalMs));
   const [dotCount, setDotCount] = useState(1);
 
   useEffect(() => {
-    const steps = Math.max(1, Math.floor(dotSteps));
     const timer = window.setInterval(() => {
-      setDotCount((c) => (c % steps) + 1);
-    }, Math.max(100, dotIntervalMs));
+      setDotCount((c) => (c % safeDotSteps) + 1);
+    }, safeDotInterval);
     return () => window.clearInterval(timer);
-  }, [dotSteps, dotIntervalMs]);
+  }, [safeDotSteps, safeDotInterval]);
 
   const displayText = useMemo(() => {
     const base = (text ?? "").replace(/[.]+$/, "");
@@ -126,7 +129,7 @@ export const BoxLoading: FC<BoxLoadingProps> = ({
   }, [text, dotCount]);
   return (
     <Wrapper $bg={background} $full={fullScreen} className={className}>
-      <Box $size={boxSize} $color={color} $duration={duration} />
+      <Box $size={safeBoxSize} $color={color} $duration={safeDuration} />
       <Text $color={textColor} $fontSize={fontSizeStr}>
         {displayText}
       </Text>

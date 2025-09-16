@@ -6,4 +6,4 @@ coverage
 .DS_Store
 .idea
 .env*
-.storybook-static
+/storybook-static

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 export type TextScrambleProps = {
@@ -14,7 +14,6 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
-  /* Storybook 배경과 어울리도록 선택된 배경을 따라가고, 기본은 원본 색 */
   background: var(--sb-background, #212121);
   font-family: "Roboto Mono", monospace;
 `;
@@ -22,10 +21,8 @@ const Container = styled.div`
 const Text = styled.div<{ $color?: string; fontSize: string }>`
   font-weight: 100;
   font-size: ${(props) => props.fontSize};
-  /* Default to dark-mode friendly (white) */
   color: ${(props) => props.$color ?? '#fff'};
 
-  /* Storybook theme attribute overrides */
   :root[data-sb-theme='light'] & {
     color: ${(props) => props.$color ?? '#000'};
   }
@@ -39,9 +36,12 @@ const Text = styled.div<{ $color?: string; fontSize: string }>`
   }
 `;
 
+const SCRAMBLE_CHARS =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!<>-_/[]{}—=+*^?#";
+
 const randomChar = () => {
-  const chars = "!<>-_\\/[]{}—=+*^?#________";
-  return chars[Math.floor(Math.random() * chars.length)];
+  const index = Math.floor(Math.random() * SCRAMBLE_CHARS.length);
+  return SCRAMBLE_CHARS[index];
 };
 
 type QueueItem = {
@@ -61,36 +61,14 @@ export function TextScramble({
 }: TextScrambleProps) {
   const [output, setOutput] = useState<(string | { dud: string })[]>([]);
   const frameRef = useRef<number>();
+  const timeoutRef = useRef<number>();
   const queueRef = useRef<QueueItem[]>([]);
   const frameCountRef = useRef(0);
   const counterRef = useRef(0);
   const resolveRef = useRef<() => void>();
+  const currentTextRef = useRef("");
 
-  const setText = (newText: string) => {
-    const oldText = output
-      .map((item) => (typeof item === "string" ? item : item.dud))
-      .join("");
-    const length = Math.max(oldText.length, newText.length);
-
-    return new Promise<void>((resolve) => {
-      resolveRef.current = resolve;
-      queueRef.current = [];
-
-      for (let i = 0; i < length; i++) {
-        const from = oldText[i] || "";
-        const to = newText[i] || "";
-        const start = Math.floor(Math.random() * 40);
-        const end = start + Math.floor(Math.random() * 40);
-        queueRef.current.push({ from, to, start, end });
-      }
-
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameCountRef.current = 0;
-      update();
-    });
-  };
-
-  const update = () => {
+  const update = useCallback(() => {
     let complete = 0;
     const out: (string | { dud: string })[] = [];
 
@@ -113,31 +91,80 @@ export function TextScramble({
     setOutput(out);
 
     if (complete === queueRef.current.length) {
-      resolveRef.current?.();
-    } else {
-      frameRef.current = requestAnimationFrame(update);
-      frameCountRef.current++;
+      frameRef.current = undefined;
+      const resolve = resolveRef.current;
+      resolveRef.current = undefined;
+      resolve?.();
+      return;
     }
-  };
+
+    frameCountRef.current += 1;
+    frameRef.current = requestAnimationFrame(update);
+  }, []);
+
+  const setText = useCallback(
+    (newText: string) => {
+      const oldText = currentTextRef.current;
+      const length = Math.max(oldText.length, newText.length);
+
+      return new Promise<void>((resolve) => {
+        resolveRef.current = () => {
+          currentTextRef.current = newText;
+          resolve();
+        };
+        queueRef.current = [];
+
+        for (let i = 0; i < length; i++) {
+          const from = oldText[i] ?? "";
+          const to = newText[i] ?? "";
+          const start = Math.floor(Math.random() * 40);
+          const end = start + Math.floor(Math.random() * 40);
+          queueRef.current.push({ from, to, start, end });
+        }
+
+        if (frameRef.current !== undefined) {
+          cancelAnimationFrame(frameRef.current);
+        }
+        frameCountRef.current = 0;
+        update();
+      });
+    },
+    [update],
+  );
 
   useEffect(() => {
-    let mounted = true;
+    if (!phrases.length) {
+      setOutput([]);
+      currentTextRef.current = "";
+      return () => undefined;
+    }
+
+    let cancelled = false;
+    counterRef.current = 0;
+
+    const safeInterval = Math.max(0, interval);
 
     const next = () => {
-      if (!mounted) return;
-      setText(phrases[counterRef.current]).then(() => {
-        setTimeout(next, interval);
+      if (cancelled) return;
+      const phrase = phrases[counterRef.current] ?? "";
+      setText(phrase).then(() => {
+        if (cancelled) return;
+        timeoutRef.current = window.setTimeout(next, safeInterval);
       });
       counterRef.current = (counterRef.current + 1) % phrases.length;
     };
 
     next();
     return () => {
-      mounted = false;
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      cancelled = true;
+      if (frameRef.current !== undefined) {
+        cancelAnimationFrame(frameRef.current);
+      }
+      if (timeoutRef.current !== undefined) {
+        window.clearTimeout(timeoutRef.current);
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phrases, interval]);
+  }, [phrases, interval, setText]);
 
   return (
     <Container className={className}>
